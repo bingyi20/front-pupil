@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件委托</title>
+    <style>
+        ul {
+            width: 500px;
+            height: 500px;
+            background-color:dimgrey;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-self: center;
+        }
+        ul li {
+            display: block;
+            width: 80%;
+            list-style: none;
+            height: 30px;
+            line-height: 30px;
+            background-color: darkorange;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li>11</li>
+        <li>22</li>
+        <li>33</li>
+        <li>44</li>
+        <li>55</li>
+        <li>66</li>
+        <li>77</li>
+        <li>88</li>
+        <li>99</li>
+    </ul>
+
+    <script>
+        // 常规方式
+        function addEvent() {
+            const liList = document.getElementsByTagName('li')
+            for(let i = 0; i < liList.length; i++) {
+                liList[i].addEventListener('click', () => {
+                    alert(`内容是：${liList[i].innerHTML} 索引是：${i}`)
+                })
+            }
+        }
+
+        // 事件委托,只给父亲元素添加事件
+        function addEvent2() {
+            const ul = document.querySelector('ul')
+            ul.addEventListener('click', (e) => {
+                const target = e.target || e.srcElement
+                if(target.tagName.toLowerCase() === 'li') {
+                    const content = target.innerHTML
+                    const liList = document.querySelectorAll('li')
+                    const index = Array.from(liList).indexOf(target)
+                    alert(`内容为：${content} 索引为：${index}`)
+                }
+            })
+        }
+
+        addEvent2()
+    </script>
+</body>
+</html>
