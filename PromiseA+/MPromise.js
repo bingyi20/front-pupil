@@ -158,33 +158,63 @@ class MPromise{
             // 如果x不是MPromise，不是对象，不是函数
             resolve(x)
         }
-
     }
 
     isFunction(value) {
         return typeof value === 'function'
     }
-}
 
+    static resolve(p) {
+        if(p instanceof MPromise) {
+            return p
+        }
+        return new MPromise((resolve) => {
+            resolve(p)
+        }, (reason) => {
+            reject(reason)
+        })
+    }
 
-const thenable = {
-    then() {
-        console.log('then able')
+    static reject(p) {
+        return new MPromise((resolve, reject) => {
+            reject(p)
+        })
+    }
+
+    static race(promises) {
+        if(!Array.isArray(promises)) {
+            throw Error('传参有误，请传递一个数组')
+        }
+        return new MPromise((resolve, reject) => {
+            promises.forEach(p => {
+                MPromise.resolve(p).then((res)=>{
+                    return resolve(res)
+                }, (reason) => {
+                    return reject(reason)
+                })
+            })
+        })
     }
 }
 
-const promise = new MPromise((resolve) => {
-    console.log(1)
-    resolve(2)
-}).then(res => {
-    console.log(res)
-    return thenable
+function fetchData(data, timeout) {
+    return new MPromise((resolve) => {
+        setTimeout(() => {
+            resolve(data)
+        }, timeout)
+    })
+}
+
+const p1 = fetchData('111', 2000)
+const p2 = fetchData('222', 500)
+const p3 = fetchData('333', 1000)
+
+MPromise.race([p1, p2, p3, 444]).then((val) => {
+    console.log(val)
+}, (reason)=>{
+    console.log("执行报错:", reason)
 })
 
-console.log(promise)
-
-setTimeout(() => {
-    console.log('after 1second');
-    console.log(promise)
-    thenable.then()
-}, 1000)
+MPromise.reject(1231).then(null, (e) => {
+    console.log("程序执行报错了：", e)
+})
