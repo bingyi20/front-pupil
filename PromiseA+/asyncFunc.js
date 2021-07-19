@@ -27,13 +27,12 @@ function asyncFunc(generator) {
     }
 
     next()
-
 }
 
 function *generator() {
     const value1 = yield longTimeTask(111, 1000)
     console.log(value1)
-    const value2 = yield longTimeTask(222, 2000)
+    const value2 = yield 5555
     console.log(value2)
     const value3 = yield longTimeTask(333, 500)
     console.log(value3)
