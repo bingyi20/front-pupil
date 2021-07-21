@@ -1,31 +1,36 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <div class="count-down">
+      倒计时: {{ displayTime }}
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { set } from 'vue/types/umd';
 import HelloWorld from '../components/HelloWorld.vue'; // @ is an alias to /src
-import { measure } from '../libs/measure';
 import { EnableCache } from '../libs/async-cache';
+import Countdown from '../libs/countdown';
+import { CountdownEvent, toFixed } from '../libs/countdown';
 
 @Component({
   components: {
     HelloWorld,
   },
 })
+
 export default class Home extends Vue {
-  @measure
-  created() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(123)
-      }, 3000)
-    }).then((value: number) => {
-      console.log(value)
+  private displayTime = '';
+
+  public created() {
+    const countdown = new Countdown(Date.now() + 24 * 60 * 60 * 1000, 75)
+    countdown.on(CountdownEvent.RUNNING, remainTime => {
+      const {hours, minutes, seconds, count} = remainTime
+      this.displayTime = [hours, minutes, seconds].map(toFixed).join(":") + "." + toFixed(count)
+    })
+    countdown.on(CountdownEvent.STOP, () => {
+      alert("倒计时结束")
     })
   }
 
@@ -34,7 +39,7 @@ export default class Home extends Vue {
   }
 
   @EnableCache
-  fetchData(url, timeout) {
+  fetchData(url: string, timeout: number) {
     return new Promise((resolve) => {
       setTimeout(() => {
         console.log(`发起数据请求`)
@@ -45,3 +50,9 @@ export default class Home extends Vue {
 
 }
 </script>
+
+<style lang="scss" scoped>
+  .count-down {
+    font-size: 20px;
+  }
+</style>
